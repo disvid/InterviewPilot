@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { extractPdfText } from "@/lib/pdf";
-import { generateAIJSON } from "@/lib/ai";   // ← Changed to Groq
+import { groqGenerateJSON } from "@/lib/ai";   // ← Changed to Groq
 import { v4 as uuid } from "uuid";
 
 export async function POST(req: NextRequest) {
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Use Groq instead of Gemini
-    const parsed = await generateAIJSON<any>(`
+    const parsed = await groqGenerateJSON<any>(`
 You are an expert resume parser. Parse this resume and return **ONLY** valid JSON with this exact structure:
 
 {
