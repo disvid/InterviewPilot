@@ -1,24 +1,26 @@
 import { getDb } from "@/lib/db";
 import { groqGenerateJSON } from "@/lib/ai";
+import { analyzeConfidence } from "@/lib/confidence";
 import { v4 as uuid } from "uuid";
 
 export async function submitAndEvaluateAnswer(
   sessionId: string,
   questionId: string,
   answerText: string,
-  userId: string
-): Promise<{ evaluation: any; error?: string }> {
+  userId: string,
+  durationSeconds?: number
+): Promise<{ evaluation: any; confidence: any; error?: string }> {
   const db = getDb();
 
   const question = db
     .prepare("SELECT * FROM questions WHERE id = ? AND session_id = ?")
     .get(questionId, sessionId) as any;
-  if (!question) return { evaluation: null, error: "Question not found" };
+  if (!question) return { evaluation: null, confidence: null, error: "Question not found" };
 
   const session = db
     .prepare("SELECT * FROM interview_sessions WHERE id = ? AND user_id = ?")
     .get(sessionId, userId) as any;
-  if (!session) return { evaluation: null, error: "Session not found" };
+  if (!session) return { evaluation: null, confidence: null, error: "Session not found" };
 
   // Upsert answer
   const existing = db
@@ -27,11 +29,9 @@ export async function submitAndEvaluateAnswer(
   let answerId: string;
 
   if (existing) {
-    db.prepare("UPDATE answers SET answer_text = ?, word_count = ? WHERE id = ?").run(
-      answerText,
-      answerText.trim().split(/\s+/).length,
-      existing.id
-    );
+    db.prepare(
+      "UPDATE answers SET answer_text = ?, word_count = ? WHERE id = ?"
+    ).run(answerText, answerText.trim().split(/\s+/).length, existing.id);
     answerId = existing.id;
     db.prepare("DELETE FROM evaluations WHERE answer_id = ?").run(answerId);
   } else {
@@ -43,33 +43,37 @@ export async function submitAndEvaluateAnswer(
 
   db.prepare("UPDATE questions SET is_answered = 1 WHERE id = ?").run(questionId);
 
+  // Confidence analysis from text
+  const confidence = analyzeConfidence(answerText, durationSeconds || 30);
+
   // Evaluate with Groq
   let evaluation: any;
   try {
     evaluation = await groqGenerateJSON<any>(`
-You are an expert interview evaluator. Evaluate the candidate's answer below and return ONLY a JSON object.
+You are an expert interview evaluator. Evaluate the candidate's answer below.
 
 Question: ${question.question_text}
 Question type: ${question.question_type}
 Key points to look for: ${question.expected_hints || "general quality"}
 Candidate answer: ${answerText}
+Confidence score from speech analysis: ${confidence.score}/100
 
-Return this exact JSON structure with no extra text:
+Return ONLY this JSON with no extra text:
 {
   "overall_score": <integer 0-100>,
   "technical_score": <integer 0-100 or null if not technical>,
   "relevance_score": <integer 0-100>,
   "communication_score": <integer 0-100>,
   "structure_score": <integer 0-100>,
-  "strengths": ["<one strength>", "<another strength>"],
-  "weaknesses": ["<one weakness>", "<another weakness>"],
+  "strengths": ["<strength 1>", "<strength 2>"],
+  "weaknesses": ["<weakness 1>", "<weakness 2>"],
   "suggested_answer": "<a good 3-5 sentence model answer>",
   "improvement_tips": ["<tip 1>", "<tip 2>"],
   "ai_feedback": "<2 sentences of direct constructive feedback>"
 }
 `);
   } catch (e: any) {
-    console.error("[evaluate] Groq evaluation failed:", e.message);
+    console.error("[evaluate] Failed:", e.message);
     evaluation = {
       overall_score: 50,
       technical_score: null,
@@ -77,14 +81,13 @@ Return this exact JSON structure with no extra text:
       communication_score: 50,
       structure_score: 50,
       strengths: ["Answer was submitted"],
-      weaknesses: ["Could not fully evaluate — please retry"],
+      weaknesses: ["Could not fully evaluate"],
       suggested_answer: "",
       improvement_tips: [],
-      ai_feedback: "Evaluation service encountered an error. Your answer was saved.",
+      ai_feedback: "Evaluation service error. Your answer was saved.",
     };
   }
 
-  // Save evaluation
   const evalId = uuid();
   db.prepare(`
     INSERT INTO evaluations
@@ -106,7 +109,7 @@ Return this exact JSON structure with no extra text:
     evaluation.ai_feedback || ""
   );
 
-  // Auto-complete session if all questions answered
+  // Auto-complete session
   const allQ = db
     .prepare("SELECT is_answered FROM questions WHERE session_id = ?")
     .all(sessionId) as any[];
@@ -118,13 +121,13 @@ Return this exact JSON structure with no extra text:
       JOIN questions q ON q.id = a.question_id
       WHERE q.session_id = ?
     `).all(sessionId) as any[];
-
     const avg =
-      scores.reduce((s: number, r: any) => s + (r.overall_score || 0), 0) / scores.length;
+      scores.reduce((s: number, r: any) => s + (r.overall_score || 0), 0) /
+      scores.length;
     db.prepare(
       "UPDATE interview_sessions SET status='completed', completed_at=datetime('now'), overall_score=? WHERE id=?"
     ).run(avg, sessionId);
   }
 
-  return { evaluation };
+  return { evaluation, confidence };
 }

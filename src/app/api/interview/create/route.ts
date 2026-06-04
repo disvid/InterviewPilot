@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { generateAIJSON } from "@/lib/ai";
+import { groqGenerateJSON } from "@/lib/ai";
 import { v4 as uuid } from "uuid";
 
 export async function POST(req: NextRequest) {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
   const numQ = total_questions || 8;
 
-  const questions = await generateAIJSON<any[]>(`
+  const questions = await groqGenerateJSON<any[]>(`
 You are an expert technical interviewer. Generate exactly ${numQ} interview questions.
 
 Candidate skills: ${skills}

@@ -1,15 +1,34 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function LogoutButton() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    setLoading(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/login");
+      router.refresh();
+    } catch (err) {
+      console.error("Logout failed", err);
+    } finally {
+      setLoading(false);
+    }
   }
+
   return (
-    <button onClick={handleLogout} className="w-full text-left text-sm text-gray-500 hover:text-red-400 transition-colors px-3 py-2 rounded-lg hover:bg-gray-800">
-      Sign out
+    <button
+      onClick={handleLogout}
+      disabled={loading}
+      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-2xl transition-all group"
+    >
+      <span className="text-xl group-hover:scale-110 transition-transform">→</span>
+      <span className="font-medium">
+        {loading ? "Signing out..." : "Sign out"}
+      </span>
     </button>
   );
 }

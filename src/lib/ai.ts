@@ -5,7 +5,6 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY || "",
 });
 
-// Text / JSON generation using llama3
 export async function groqGenerate(prompt: string): Promise<string> {
   const completion = await groq.chat.completions.create({
     model: "llama-3.3-70b-versatile",
@@ -25,7 +24,6 @@ export async function groqGenerate(prompt: string): Promise<string> {
 
 export async function groqGenerateJSON<T>(prompt: string): Promise<T> {
   const text = await groqGenerate(prompt);
-  // Strip markdown code fences if model adds them anyway
   const cleaned = text
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")
@@ -34,12 +32,11 @@ export async function groqGenerateJSON<T>(prompt: string): Promise<T> {
   try {
     return JSON.parse(cleaned) as T;
   } catch (e) {
-    console.error("[groq] JSON parse failed. Raw text:", text.slice(0, 300));
+    console.error("[groq] JSON parse failed. Raw:", text.slice(0, 300));
     throw new Error(`Groq returned invalid JSON: ${(e as Error).message}`);
   }
 }
 
-// Audio transcription using Groq Whisper
 export async function groqTranscribe(audioFilePath: string): Promise<string> {
   const transcription = await groq.audio.transcriptions.create({
     file: fs.createReadStream(audioFilePath) as any,
@@ -47,9 +44,22 @@ export async function groqTranscribe(audioFilePath: string): Promise<string> {
     response_format: "text",
     language: "en",
   });
-  // Groq returns plain string when response_format is "text"
-  return (typeof transcription === "string"
-    ? transcription
-    : (transcription as any).text || ""
+  return (
+    typeof transcription === "string"
+      ? transcription
+      : (transcription as any).text || ""
   ).trim();
+}
+
+// NEW: Text-to-Speech using Groq PlayAI
+export async function groqTextToSpeech(text: string): Promise<Buffer> {
+  const response = await groq.audio.speech.create({
+    model: "playai-tts",
+    voice: "Fritz-PlayAI",
+    input: text,
+    response_format: "wav",
+  } as any);
+
+  const arrayBuffer = await response.arrayBuffer();
+  return Buffer.from(arrayBuffer);
 }

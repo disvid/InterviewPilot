@@ -2,82 +2,206 @@ import { getDb } from "@/lib/db";
 import Link from "next/link";
 
 export default async function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;   // ← This is the fix
+  const { id } = await params;   // ← This fixes the error
 
   const db = getDb();
+  
   const session = db.prepare("SELECT * FROM interview_sessions WHERE id = ?").get(id) as any;
   
   const questions = db.prepare(`
-    SELECT q.*, a.answer_text, e.overall_score, e.technical_score, 
-           e.relevance_score, e.communication_score, e.structure_score, 
-           e.strengths, e.weaknesses, e.suggested_answer, e.ai_feedback 
-    FROM questions q 
-    LEFT JOIN answers a ON a.question_id = q.id 
-    LEFT JOIN evaluations e ON e.answer_id = a.id 
-    WHERE q.session_id = ? 
+    SELECT q.*, a.answer_text, a.word_count,
+      e.overall_score, e.technical_score, e.relevance_score,
+      e.communication_score, e.structure_score,
+      e.strengths, e.weaknesses, e.suggested_answer, e.ai_feedback,
+      e.improvement_tips
+    FROM questions q
+    LEFT JOIN answers a ON a.question_id = q.id
+    LEFT JOIN evaluations e ON e.answer_id = a.id
+    WHERE q.session_id = ?
     ORDER BY q.order_index
   `).all(id) as any[];
 
-  const answered = questions.filter(q => q.overall_score != null);
-  const avgScore = answered.length 
-    ? answered.reduce((s: number, q: any) => s + (q.overall_score || 0), 0) / answered.length 
+  const answered = questions.filter((q) => q.overall_score != null);
+  const avgScore = answered.length
+    ? answered.reduce((s, q) => s + q.overall_score, 0) / answered.length
     : 0;
 
-  const scoreColor = avgScore >= 70 ? "text-green-400" : avgScore >= 50 ? "text-yellow-400" : "text-red-400";
+  const scoreColor = (s: number) =>
+    s >= 75 ? "text-emerald-400" : s >= 50 ? "text-amber-400" : "text-red-400";
+  
+  const scoreBg = (s: number) =>
+    s >= 75 ? "bg-emerald-400" : s >= 50 ? "bg-amber-400" : "bg-red-400";
+
+  const grade = avgScore >= 85 ? "A" 
+              : avgScore >= 70 ? "B" 
+              : avgScore >= 55 ? "C" 
+              : avgScore >= 40 ? "D" : "F";
+
+  const gradeColor = avgScore >= 85 ? "text-emerald-400" 
+                   : avgScore >= 70 ? "text-blue-400" 
+                   : avgScore >= 55 ? "text-amber-400" 
+                   : "text-red-400";
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <h1 className="text-2xl font-bold">Interview Results</h1>
-      <p className="text-gray-400 capitalize">
-        {session?.interview_type?.replace("_", " ")} Interview
-        {session?.job_role ? ` · ${session.job_role}` : ""}
-      </p>
+    <div className="space-y-8 max-w-5xl">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="section-title text-3xl">Interview Results</h1>
+          <p className="text-gray-400 mt-1 capitalize">
+            {session?.interview_type?.replace("_", " ") || "Mock"} Interview
+            {session?.job_role ? ` • ${session.job_role}` : ""}
+          </p>
+        </div>
+        <Link href="/dashboard/history" className="btn-ghost flex items-center gap-2">
+          ← Back to History
+        </Link>
+      </div>
 
-      <div className="card text-center">
-        <div className={`text-7xl font-bold ${scoreColor}`}>{Math.round(avgScore)}</div>
-        <div className="text-gray-400 mt-1">Overall Score</div>
-        <div className="flex justify-center gap-8 mt-4 text-sm">
-          <div><div className="font-semibold">{questions.length}</div><div className="text-gray-500">Questions</div></div>
-          <div><div className="font-semibold">{answered.length}</div><div className="text-gray-500">Answered</div></div>
+      {/* Overall Score Card */}
+      <div className="card relative overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+        
+        <div className="flex flex-col md:flex-row items-center justify-center gap-10 py-8">
+          <div className="text-center">
+            <div className={`text-7xl font-bold tracking-tighter ${scoreColor(avgScore)}`}>
+              {Math.round(avgScore)}
+              <span className="text-4xl">%</span>
+            </div>
+            <p className="text-gray-400 mt-2 font-medium">Overall Performance</p>
+          </div>
+
+          <div className="text-center border-l border-gray-700 pl-10">
+            <div className={`text-7xl font-bold ${gradeColor}`}>{grade}</div>
+            <p className="text-gray-400 mt-2 font-medium">Letter Grade</p>
+          </div>
+        </div>
+
+        {/* Stats Bar */}
+        <div className="grid grid-cols-3 border-t border-gray-800 pt-6 text-center">
+          <div>
+            <div className="text-2xl font-semibold">{questions.length}</div>
+            <div className="text-xs text-gray-500 tracking-widest">TOTAL QUESTIONS</div>
+          </div>
+          <div>
+            <div className="text-2xl font-semibold">{answered.length}</div>
+            <div className="text-xs text-gray-500 tracking-widest">ANSWERED</div>
+          </div>
+          <div>
+            <div className="text-2xl font-semibold capitalize">{session?.difficulty}</div>
+            <div className="text-xs text-gray-500 tracking-widest">DIFFICULTY</div>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-3">
-        {questions.map((q, i) => (
-          <div key={q.id} className="card">
-            <div className="flex justify-between items-start gap-4 mb-2">
-              <div className="text-sm font-medium text-gray-300 flex-1">
-                Q{i + 1}. {q.question_text}
+      {/* Question Breakdown */}
+      <div>
+        <h2 className="text-xl font-semibold mb-5">Question Breakdown</h2>
+        <div className="space-y-6">
+          {questions.map((q, i) => (
+            <div key={q.id} className="card">
+              <div className="flex justify-between items-start mb-5">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="px-3 py-1 bg-gray-800 text-xs font-mono rounded-lg">Q{i + 1}</span>
+                    <span className="badge bg-gray-800 text-gray-400">
+                      {q.question_type?.replace("_", " ")}
+                    </span>
+                  </div>
+                  <p className="text-gray-100 leading-relaxed">{q.question_text}</p>
+                </div>
+
+                {q.overall_score !== null && (
+                  <div className={`text-4xl font-bold shrink-0 ${scoreColor(q.overall_score)}`}>
+                    {Math.round(q.overall_score)}%
+                  </div>
+                )}
               </div>
-              {q.overall_score != null && (
-                <span className={`font-bold shrink-0 ${q.overall_score >= 70 ? "text-green-400" : q.overall_score >= 50 ? "text-yellow-400" : "text-red-400"}`}>
-                  {Math.round(q.overall_score)}%
-                </span>
+
+              {q.overall_score !== null ? (
+                <>
+                  {/* Score Breakdown */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    {[
+                      { label: "Relevance", value: q.relevance_score },
+                      { label: "Communication", value: q.communication_score },
+                      { label: "Structure", value: q.structure_score },
+                      ...(q.technical_score != null ? [{ label: "Technical", value: q.technical_score }] : []),
+                    ].map(({ label, value }) => (
+                      <div key={label} className="bg-gray-950 rounded-xl p-4">
+                        <div className="text-xs text-gray-500 mb-2">{label}</div>
+                        <div className="flex items-end gap-2">
+                          <span className={`text-3xl font-semibold ${scoreColor(value)}`}>
+                            {Math.round(value)}
+                          </span>
+                          <span className="text-gray-500 text-sm">/100</span>
+                        </div>
+                        <div className="h-1.5 bg-gray-800 rounded-full mt-3 overflow-hidden">
+                          <div 
+                            className={`h-full ${scoreBg(value)} transition-all`} 
+                            style={{ width: `${value}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {q.ai_feedback && (
+                    <div className="mb-5 p-5 bg-gray-950 rounded-2xl border border-gray-800">
+                      <p className="text-sm text-gray-300 leading-relaxed">{q.ai_feedback}</p>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-6 text-sm">
+                    {q.strengths && JSON.parse(q.strengths).length > 0 && (
+                      <div>
+                        <p className="text-emerald-400 text-xs font-medium mb-2">STRENGTHS</p>
+                        {JSON.parse(q.strengths).slice(0, 2).map((s: string, j: number) => (
+                          <p key={j} className="text-emerald-400/90">✓ {s}</p>
+                        ))}
+                      </div>
+                    )}
+
+                    {q.weaknesses && JSON.parse(q.weaknesses).length > 0 && (
+                      <div>
+                        <p className="text-red-400 text-xs font-medium mb-2">AREAS TO IMPROVE</p>
+                        {JSON.parse(q.weaknesses).slice(0, 2).map((w: string, j: number) => (
+                          <p key={j} className="text-red-400/90">→ {w}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {q.suggested_answer && (
+                    <details className="mt-6 group">
+                      <summary className="text-blue-400 text-sm flex items-center gap-2 cursor-pointer hover:text-blue-300">
+                        💡 View Model Answer
+                      </summary>
+                      <div className="mt-4 p-5 bg-gray-950 border border-blue-500/20 rounded-2xl text-sm leading-relaxed text-gray-300">
+                        {q.suggested_answer}
+                      </div>
+                    </details>
+                  )}
+                </>
+              ) : (
+                <p className="text-gray-500 italic text-sm">Question was skipped</p>
               )}
             </div>
-
-            {q.ai_feedback && <p className="text-xs text-gray-400 mb-2">{q.ai_feedback}</p>}
-
-            {q.answer_text && (
-              <details className="text-xs">
-                <summary className="text-gray-500 cursor-pointer mb-1">Your answer</summary>
-                <p className="text-gray-400">{q.answer_text}</p>
-              </details>
-            )}
-
-            {q.suggested_answer && (
-              <details className="text-xs mt-1">
-                <summary className="text-blue-400 cursor-pointer mb-1">Model answer</summary>
-                <p className="text-gray-400 leading-relaxed">{q.suggested_answer}</p>
-              </details>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      <div className="flex gap-3">
-        <Link href="/dashboard/interview/setup" className="btn-primary">Practice Again</Link>
-        <Link href="/dashboard" className="btn-ghost">Back to Dashboard</Link>
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-4 pt-4">
+        <Link href="/dashboard/interview/setup" className="btn-primary">
+          Practice Similar Interview
+        </Link>
+        <Link href="/dashboard/analytics" className="btn-secondary">
+          View Analytics
+        </Link>
+        <Link href="/dashboard/history" className="btn-ghost">
+          Back to History
+        </Link>
       </div>
     </div>
   );
