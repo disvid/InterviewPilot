@@ -38,18 +38,18 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         {/* Logo & Header */}
         <div className="text-center mb-10">
           <div className="flex justify-center mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-3xl font-bold text-white">
+            <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-3xl font-bold text-white">
               IP
             </div>
           </div>
-          <h1 className="text-3xl font-semibold text-white">Create your account</h1>
-          <p className="text-gray-400 mt-2">
-            Join thousands practicing interviews with AI
+          <h1 className="text-3xl font-semibold text-slate-100">Create your account</h1>
+          <p className="text-slate-400 mt-2">
+            Join professionals preparing smarter for their next opportunity
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export default function RegisterPage() {
         <div className="card p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-2xl text-sm">
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
@@ -124,16 +124,16 @@ export default function RegisterPage() {
               )}
             </button>
 
-            <p className="text-center text-sm text-gray-400">
+            <p className="text-center text-sm text-slate-400">
               Already have an account?{" "}
-              <Link href="/login" className="text-blue-400 hover:text-blue-300 font-medium">
+              <Link href="/login" className="text-teal-400 hover:text-teal-300 font-medium">
                 Sign in
               </Link>
             </p>
           </form>
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-8">
+        <p className="text-center text-xs text-slate-500 mt-8">
           By signing up, you agree to our Terms and Privacy Policy
         </p>
       </div>

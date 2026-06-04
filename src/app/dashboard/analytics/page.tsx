@@ -44,12 +44,12 @@ export default async function AnalyticsPage() {
       {/* Page Header */}
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="section-title text-3xl">Analytics Dashboard</h1>
-          <p className="text-gray-400 mt-1.5">
+          <h1 className="section-title">Analytics Dashboard</h1>
+          <p className="text-slate-400 mt-1.5">
             Monitor your growth and interview performance
           </p>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-slate-500">
           Last updated: {new Date().toLocaleDateString()}
         </div>
       </div>
@@ -60,33 +60,34 @@ export default async function AnalyticsPage() {
           { 
             label: "Total Completed", 
             value: totalSessions,
-            icon: "📊",
-            color: "from-blue-500 to-cyan-500"
+            icon: "●",
+            gradient: "from-teal-500/20 to-teal-600/20",
+            accent: "text-teal-400"
           },
           { 
             label: "Average Score", 
             value: `${Math.round(avgScore)}%`,
-            icon: "🎯",
-            color: "from-indigo-500 to-purple-500"
+            icon: "◈",
+            gradient: "from-emerald-500/20 to-emerald-600/20",
+            accent: "text-emerald-400"
           },
           { 
             label: "Best Score", 
             value: `${Math.round(bestScore)}%`,
-            icon: "🏆",
-            color: "from-amber-500 to-orange-500"
+            icon: "★",
+            gradient: "from-amber-500/20 to-amber-600/20",
+            accent: "text-amber-400"
           },
         ].map((stat, i) => (
-          <div key={i} className="card card-hover group">
+          <div key={i} className={`card card-hover bg-gradient-to-br ${stat.gradient} border-2 border-${i===0 ? 'teal' : i===1 ? 'emerald' : 'amber'}-500/20`}>
             <div className="flex items-start justify-between">
               <div>
-                <div className={`text-4xl font-bold bg-gradient-to-br ${stat.color} bg-clip-text text-transparent`}>
+                <div className={`text-4xl font-bold ${stat.accent}`}>
                   {stat.value}
                 </div>
-                <p className="text-gray-400 mt-3 font-medium">{stat.label}</p>
+                <p className="text-slate-400 mt-3 font-medium text-sm">{stat.label}</p>
               </div>
-              <div className="text-3xl opacity-70 group-hover:scale-110 transition-transform">
-                {stat.icon}
-              </div>
+              <div className={`text-3xl opacity-60 ${stat.accent}`}>{stat.icon}</div>
             </div>
           </div>
         ))}
@@ -100,22 +101,22 @@ export default async function AnalyticsPage() {
       {/* Recent Activity */}
       {completedSessions.length > 0 && (
         <div className="card">
-          <h2 className="text-xl font-semibold mb-5">Recent Interviews</h2>
+          <h2 className="text-xl font-semibold mb-5 text-slate-100">Recent Interviews</h2>
           <div className="space-y-3">
             {completedSessions.slice(0, 6).map((session: any, index: number) => (
               <div 
                 key={index} 
-                className="flex items-center justify-between bg-gray-950 rounded-2xl p-5 hover:bg-gray-900 transition-colors"
+                className="flex items-center justify-between bg-slate-900/50 rounded-lg p-5 hover:bg-slate-800/50 transition-colors border border-slate-800/50"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-700 flex items-center justify-center text-xl">
-                    {session.interview_type?.includes("technical") ? "💻" : "🗣️"}
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-lg border border-slate-700">
+                    {session.interview_type?.includes("technical") ? "▧" : "◆"}
                   </div>
                   <div>
-                    <p className="font-semibold capitalize">
+                    <p className="font-semibold text-slate-100 capitalize">
                       {session.interview_type?.replace("_", " ") || "Mock Interview"}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-500">
                       {new Date(session.completed_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -126,7 +127,11 @@ export default async function AnalyticsPage() {
                 </div>
 
                 <div className="text-right">
-                  <span className="badge bg-emerald-500/10 text-emerald-400 px-4 py-1.5 text-sm">
+                  <span className={`badge font-semibold text-base ${
+                    session.overall_score >= 75 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                    session.overall_score >= 55 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                    'bg-red-500/10 text-red-400 border border-red-500/20'
+                  } px-4 py-1.5`}>
                     {session.overall_score || 0}%
                   </span>
                 </div>

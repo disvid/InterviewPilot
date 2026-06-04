@@ -17,17 +17,17 @@ type Evaluation = {
 
 type Confidence = {
   score: number;
-  pace_wpm: number;
-  filler_count: number;
+  pace_wpm: number | null;
+  filler_count: number | null;
   filler_words: string[];
-  hesitation_count: number;
+  hesitation_count: number | null;
   feedback: string;
   traits: { label: string; positive: boolean }[];
 };
 
 type QuestionResult = {
   evaluation: Evaluation;
-  confidence: Confidence;
+  confidence?: Confidence;
   transcription?: string;
 };
 
@@ -64,7 +64,8 @@ export default function SessionPage() {
       .then((d) => {
         setQuestions(d.questions || []);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [id]);
 
   const currentQ = questions[current];
@@ -76,7 +77,7 @@ export default function SessionPage() {
     setAnswer("");
     setSubmitError("");
     speakQuestion(currentQ.question_text);
-  }, [current, currentQ?.id]);
+  }, [current, currentQ?.id, ttsEnabled]);
 
   // Recording Timer
   useEffect(() => {
@@ -222,7 +223,7 @@ export default function SessionPage() {
           ...prev,
           [currentQ.id]: {
             evaluation: data.evaluation,
-            confidence: data.confidence,
+            confidence: data.confidence || undefined,
             transcription: data.transcription
           }
         }));
@@ -259,7 +260,10 @@ export default function SessionPage() {
       } else {
         setResults((prev) => ({
           ...prev,
-          [currentQ.id]: { evaluation: data.evaluation, confidence: data.confidence }
+          [currentQ.id]: {
+            evaluation: data.evaluation,
+            confidence: data.confidence || undefined
+          }
         }));
       }
     } catch (err) {
@@ -287,15 +291,15 @@ export default function SessionPage() {
     return (
       <div className="flex items-center justify-center min-h-[70vh]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading your interview session...</p>
+          <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-400">Loading your interview session...</p>
         </div>
       </div>
     );
   }
 
   const answeredCount = Object.keys(results).length;
-  const progress = ((current + 1) / questions.length) * 100;
+  const progress = questions.length > 0 ? ((current + 1) / questions.length) * 100 : 0;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
@@ -303,40 +307,42 @@ export default function SessionPage() {
       <div className="card">
         <div className="flex justify-between items-center mb-3 px-1">
           <div>
-            <span className="text-sm text-gray-400">Question </span>
-            <span className="text-2xl font-semibold text-white">{current + 1}</span>
-            <span className="text-sm text-gray-400"> / {questions.length}</span>
+            <span className="text-sm text-slate-400">Question </span>
+            <span className="text-2xl font-semibold text-slate-100">{current + 1}</span>
+            <span className="text-sm text-slate-400"> / {questions.length}</span>
           </div>
           <button
             onClick={() => setTtsEnabled(!ttsEnabled)}
             className="btn-ghost text-sm px-4 py-2"
           >
-            {ttsEnabled ? "🔊 Audio Enabled" : "🔇 Audio Disabled"}
+            {ttsEnabled ? "Volume On" : "Volume Off"}
           </button>
         </div>
-        <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500" style={{ width: `${progress}%` }} />
+        <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-teal-500 to-teal-600 transition-all duration-500" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
       {/* AI Interviewer */}
-      <div className="card p-8">
+      <div className="card p-8 border-2 border-slate-800/50">
         <div className="flex gap-6">
           <div className="shrink-0 pt-1">
-            <div className={`w-16 h-16 rounded-2xl border-2 flex items-center justify-center text-4xl transition-all ${ttsPlaying ? "border-blue-400 shadow-xl shadow-blue-500/30" : "border-gray-700"}`}>
-              {ttsPlaying ? "🟢" : "🤖"}
+            <div className={`w-16 h-16 rounded-lg border-2 flex items-center justify-center text-3xl transition-all ${
+              ttsPlaying ? "border-teal-400 shadow-lg shadow-teal-500/20" : "border-slate-700"
+            }`}>
+              {ttsPlaying ? "●" : "◆"}
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-xl leading-relaxed text-gray-100">{currentQ?.question_text}</p>
+            <p className="text-xl leading-relaxed text-slate-100">{currentQ?.question_text}</p>
             <div className="mt-6">
               {ttsPlaying ? (
-                <button onClick={stopAudio} className="text-red-400 hover:text-red-500 transition-colors flex items-center gap-2">
+                <button onClick={stopAudio} className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-2 text-sm font-medium">
                   ⏹ Stop Audio
                 </button>
               ) : (
-                <button onClick={() => speakQuestion(currentQ?.question_text)} className="btn-ghost">
-                  🔊 Replay Question
+                <button onClick={() => speakQuestion(currentQ?.question_text)} className="btn-ghost text-sm">
+                  Replay Question
                 </button>
               )}
             </div>
@@ -350,7 +356,7 @@ export default function SessionPage() {
           {/* Evaluation Card */}
           <div className="card p-8">
             <div className="flex justify-between items-start mb-8">
-              <h3 className="text-2xl font-semibold">Answer Evaluation</h3>
+              <h3 className="text-2xl font-semibold text-slate-100">Answer Evaluation</h3>
               <div className={`text-6xl font-bold ${scoreColor(currentResult.evaluation.overall_score)}`}>
                 {Math.round(currentResult.evaluation.overall_score)}%
               </div>
@@ -363,74 +369,142 @@ export default function SessionPage() {
                 { label: "Structure", val: currentResult.evaluation.structure_score },
                 ...(currentResult.evaluation.technical_score ? [{ label: "Technical", val: currentResult.evaluation.technical_score }] : []),
               ].map(({ label, val }) => (
-                <div key={label} className="bg-gray-950 rounded-2xl p-5">
-                  <p className="text-xs text-gray-500">{label}</p>
+                <div key={label} className="bg-slate-900/50 rounded-lg p-5 border border-slate-800">
+                  <p className="text-xs text-slate-500">{label}</p>
                   <p className={`text-4xl font-semibold mt-1 ${scoreColor(val)}`}>{Math.round(val)}</p>
-                  <div className="h-1.5 bg-gray-800 mt-4 rounded">
-                    <div className={`h-full ${scoreBg(val)}`} style={{ width: `${val}%` }} />
+                  <div className="h-1.5 bg-slate-800 mt-4 rounded">
+                    <div className={`h-full ${scoreBg(val)}`} style={{ width: `${Math.min(val, 100)}%` }} />
                   </div>
                 </div>
               ))}
             </div>
 
-            <p className="text-gray-200 leading-relaxed">{currentResult.evaluation.ai_feedback}</p>
+            <p className="text-slate-200 leading-relaxed">{currentResult.evaluation.ai_feedback}</p>
 
             <div className="grid md:grid-cols-2 gap-8 mt-10">
               <div>
-                <p className="uppercase text-emerald-400 text-xs tracking-widest mb-3">Strengths</p>
-                {currentResult.evaluation.strengths?.slice(0, 3).map((s, i) => (
-                  <p key={i} className="text-emerald-400/90 mb-1">• {s}</p>
-                ))}
+                <p className="uppercase text-emerald-400 text-xs tracking-widest mb-3 font-semibold">Strengths</p>
+                {currentResult.evaluation.strengths && currentResult.evaluation.strengths.length > 0 ? (
+                  currentResult.evaluation.strengths.slice(0, 3).map((s, i) => (
+                    <p key={i} className="text-emerald-400/90 mb-1.5 text-sm">• {s}</p>
+                  ))
+                ) : (
+                  <p className="text-slate-500 text-sm italic">No strengths recorded</p>
+                )}
               </div>
               <div>
-                <p className="uppercase text-red-400 text-xs tracking-widest mb-3">Areas to Improve</p>
-                {currentResult.evaluation.weaknesses?.slice(0, 3).map((w, i) => (
-                  <p key={i} className="text-red-400/90 mb-1">• {w}</p>
-                ))}
+                <p className="uppercase text-red-400 text-xs tracking-widest mb-3 font-semibold">Areas to Improve</p>
+                {currentResult.evaluation.weaknesses && currentResult.evaluation.weaknesses.length > 0 ? (
+                  currentResult.evaluation.weaknesses.slice(0, 3).map((w, i) => (
+                    <p key={i} className="text-red-400/90 mb-1.5 text-sm">• {w}</p>
+                  ))
+                ) : (
+                  <p className="text-slate-500 text-sm italic">No areas identified</p>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Confidence Analysis - FULLY RESTORED */}
-          {currentResult.confidence && (
+          {/* Confidence Analysis */}
+          {currentResult.confidence ? (
             <div className="card p-8">
-              <h3 className="text-xl font-semibold mb-5 flex items-center gap-2">🎤 Confidence & Delivery Analysis</h3>
+              <h3 className="text-xl font-semibold mb-6 text-slate-100">Confidence & Delivery Analysis</h3>
 
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-950 rounded-2xl p-5 text-center">
-                  <div className="text-3xl font-bold text-blue-400">{currentResult.confidence.pace_wpm}</div>
-                  <div className="text-xs text-gray-500 mt-1">Words/min</div>
+              {/* Metrics Grid */}
+              <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="bg-slate-900/50 rounded-lg p-6 text-center border border-slate-800">
+                  <div className="text-5xl font-bold text-teal-400">
+                    {currentResult.confidence.pace_wpm !== null && currentResult.confidence.pace_wpm !== undefined
+                      ? Math.round(currentResult.confidence.pace_wpm)
+                      : "--"}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-2 font-medium uppercase tracking-wide">Words/min</div>
+                  <div className="text-[10px] text-slate-600 mt-1">Speaking pace</div>
                 </div>
-                <div className="bg-gray-950 rounded-2xl p-5 text-center">
-                  <div className="text-3xl font-bold text-yellow-400">{currentResult.confidence.filler_count}</div>
-                  <div className="text-xs text-gray-500 mt-1">Filler Words</div>
+
+                <div className="bg-slate-900/50 rounded-lg p-6 text-center border border-slate-800">
+                  <div className="text-5xl font-bold text-amber-400">
+                    {currentResult.confidence.filler_count !== null && currentResult.confidence.filler_count !== undefined
+                      ? currentResult.confidence.filler_count
+                      : "--"}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-2 font-medium uppercase tracking-wide">Filler words</div>
+                  <div className="text-[10px] text-slate-600 mt-1">Um, uh, like</div>
                 </div>
-                <div className="bg-gray-950 rounded-2xl p-5 text-center">
-                  <div className="text-3xl font-bold text-purple-400">{currentResult.confidence.hesitation_count}</div>
-                  <div className="text-xs text-gray-500 mt-1">Hesitations</div>
+
+                <div className="bg-slate-900/50 rounded-lg p-6 text-center border border-slate-800">
+                  <div className="text-5xl font-bold text-purple-400">
+                    {currentResult.confidence.hesitation_count !== null && currentResult.confidence.hesitation_count !== undefined
+                      ? currentResult.confidence.hesitation_count
+                      : "--"}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-2 font-medium uppercase tracking-wide">Hesitations</div>
+                  <div className="text-[10px] text-slate-600 mt-1">Pauses & breaks</div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2 mb-5">
-                {currentResult.confidence.traits.map((t, i) => (
-                  <span key={i} className={`badge ${t.positive ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"} border`}>
-                    {t.positive ? "✓" : "→"} {t.label}
-                  </span>
-                ))}
-              </div>
+              {/* Traits */}
+              {currentResult.confidence.traits && currentResult.confidence.traits.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-sm font-semibold text-slate-300 mb-3">Delivery Traits</p>
+                  <div className="flex flex-wrap gap-2">
+                    {currentResult.confidence.traits.map((t, i) => (
+                      <span
+                        key={i}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium border ${
+                          t.positive
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                            : "bg-red-500/10 text-red-400 border-red-500/20"
+                        }`}
+                      >
+                        {t.positive ? "✓" : "→"} {t.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
+              {/* Feedback */}
               {currentResult.confidence.feedback && (
-                <p className="text-sm text-gray-300 bg-gray-950 p-4 rounded-2xl">{currentResult.confidence.feedback}</p>
+                <div className="bg-slate-900/50 rounded-lg p-5 border border-slate-800 mb-4">
+                  <p className="text-sm text-slate-300 leading-relaxed">{currentResult.confidence.feedback}</p>
+                </div>
               )}
 
-              {currentResult.transcription && (
-                <details className="mt-4">
-                  <summary className="cursor-pointer text-sm text-gray-400 hover:text-gray-200">📝 View Full Transcription</summary>
-                  <p className="mt-3 text-sm text-gray-400 italic border-l-2 border-gray-700 pl-4">
-                    "{currentResult.transcription}"
-                  </p>
-                </details>
+              {/* Filler Words List */}
+              {currentResult.confidence.filler_words && currentResult.confidence.filler_words.length > 0 && (
+                <div>
+                  <p className="text-sm font-semibold text-slate-300 mb-3">Detected Filler Words</p>
+                  <div className="bg-slate-900/30 rounded-lg p-4 border border-slate-800">
+                    <div className="flex flex-wrap gap-2">
+                      {currentResult.confidence.filler_words.map((word, i) => (
+                        <span key={i} className="px-3 py-1 bg-slate-800 text-slate-300 text-xs rounded-full border border-slate-700">
+                          "{word}"
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               )}
+            </div>
+          ) : (
+            <div className="card p-8 bg-slate-900/30 border-2 border-slate-800">
+              <p className="text-slate-400 text-center text-sm">Confidence analysis not available for text responses</p>
+            </div>
+          )}
+
+          {/* Transcription */}
+          {currentResult.transcription && (
+            <div className="card p-8">
+              <details className="group">
+                <summary className="cursor-pointer flex items-center gap-2 text-slate-200 font-semibold hover:text-teal-400 transition-colors">
+                  <span className="text-lg group-open:rotate-90 transition-transform">▶</span>
+                  View Full Transcription
+                </summary>
+                <div className="mt-5 p-5 bg-slate-900/50 rounded-lg border border-slate-800 text-slate-300 leading-relaxed">
+                  "{currentResult.transcription}"
+                </div>
+              </details>
             </div>
           )}
 
@@ -442,17 +516,17 @@ export default function SessionPage() {
         /* Answer Input Section */
         <div className="card p-8 space-y-8">
           {submitError && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-2xl">
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-lg text-sm">
               {submitError}
             </div>
           )}
 
           {/* Voice Recorder */}
-          <div className="border border-gray-700 rounded-3xl overflow-hidden">
-            <div className="bg-gray-900 px-6 py-4 border-b border-gray-700 flex justify-between items-center">
-              <span className="font-medium">Voice Response</span>
+          <div className="border border-slate-700 rounded-lg overflow-hidden">
+            <div className="bg-slate-900/50 px-6 py-4 border-b border-slate-700 flex justify-between items-center">
+              <span className="font-medium text-slate-100 text-sm">Voice Response</span>
               {recState === "recording" && (
-                <span className="text-red-400 flex items-center gap-2">
+                <span className="text-red-400 flex items-center gap-2 text-sm">
                   <span className="animate-pulse">●</span> Recording ({recSeconds}s)
                 </span>
               )}
@@ -462,11 +536,11 @@ export default function SessionPage() {
               {recState === "idle" && (
                 <button
                   onClick={startRecording}
-                  className="w-full py-16 border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-2xl hover:bg-blue-500/5 transition-all group"
+                  className="w-full py-16 border-2 border-dashed border-slate-600 hover:border-teal-500 rounded-lg hover:bg-teal-500/5 transition-all group"
                 >
-                  <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">🎙️</div>
-                  <p className="font-medium">Start Recording Your Answer</p>
-                  <p className="text-sm text-gray-500 mt-1">Speak naturally • AI will transcribe and evaluate</p>
+                  <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">🎙</div>
+                  <p className="font-medium text-slate-100">Start Recording Your Answer</p>
+                  <p className="text-sm text-slate-500 mt-1">Speak naturally • AI will transcribe and evaluate</p>
                 </button>
               )}
 
@@ -485,8 +559,8 @@ export default function SessionPage() {
 
               {recState === "processing" && (
                 <div className="text-center py-12">
-                  <div className="w-10 h-10 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                  <p>Analyzing your response...</p>
+                  <div className="w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                  <p className="text-slate-300 text-sm">Analyzing your response...</p>
                 </div>
               )}
             </div>
@@ -494,7 +568,7 @@ export default function SessionPage() {
 
           {/* Text Answer */}
           <div>
-            <div className="text-xs uppercase tracking-widest text-gray-500 mb-3">Or type your answer</div>
+            <div className="text-xs uppercase tracking-widest text-slate-500 mb-3 font-medium">Or type your answer</div>
             <textarea
               value={answer}
               onChange={(e) => {
@@ -505,8 +579,8 @@ export default function SessionPage() {
               placeholder="Type your detailed answer here..."
               className="input resize-y min-h-[140px]"
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-2">
-              <span>{answer.trim().split(/\s+/).length} words</span>
+            <div className="flex justify-between text-xs text-slate-500 mt-2">
+              <span>{answer.trim().split(/\s+/).filter(w => w).length} words</span>
               <span>Recommended: 80–180 words</span>
             </div>
           </div>
@@ -515,7 +589,7 @@ export default function SessionPage() {
             <button
               onClick={submitTextAnswer}
               disabled={!answer.trim() || submitting}
-              className="btn-primary flex-1 py-4"
+              className="btn-primary flex-1 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? "Evaluating Answer..." : "Submit Answer"}
             </button>
@@ -534,18 +608,18 @@ export default function SessionPage() {
             onClick={() => {
               if (recState === "idle" && !submitting) setCurrent(i);
             }}
-            className={`w-10 h-10 rounded-xl text-sm font-medium transition-all ${
+            className={`w-10 h-10 rounded-lg text-sm font-medium transition-all border ${
               i === current
-                ? "bg-blue-600 text-white scale-110"
+                ? "bg-teal-600 text-white border-teal-500 scale-110"
                 : results[q.id]
-                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                : "bg-gray-900 hover:bg-gray-800 text-gray-400"
+                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
+                : "bg-slate-900 hover:bg-slate-800 text-slate-400 border-slate-800"
             }`}
           >
             {i + 1}
           </button>
         ))}
-        <div className="ml-auto self-center text-sm text-gray-500">
+        <div className="ml-auto self-center text-sm text-slate-500 font-medium">
           {answeredCount} / {questions.length} answered
         </div>
       </div>

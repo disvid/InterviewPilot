@@ -5,13 +5,13 @@ import Link from "next/link";
 const PRIORITY_COLOR: Record<string, string> = {
   high: "border-red-500/30 bg-red-500/5",
   medium: "border-amber-500/30 bg-amber-500/5",
-  low: "border-blue-500/30 bg-blue-500/5",
+  low: "border-teal-500/30 bg-teal-500/5",
 };
 
 const PRIORITY_BADGE: Record<string, string> = {
   high: "bg-red-500/20 text-red-400",
   medium: "bg-amber-500/20 text-amber-400",
-  low: "bg-blue-500/20 text-blue-400",
+  low: "bg-teal-500/20 text-teal-400",
 };
 
 export default function ResumeRecommendationsPage() {
@@ -37,9 +37,9 @@ export default function ResumeRecommendationsPage() {
     return (
       <div className="flex items-center justify-center min-h-[70vh]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400 text-lg">Analyzing your resume with AI...</p>
-          <p className="text-xs text-gray-500 mt-2">This usually takes 5-10 seconds</p>
+          <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-400 text-lg">Analyzing your resume with AI...</p>
+          <p className="text-xs text-slate-500 mt-2">This usually takes 5-10 seconds</p>
         </div>
       </div>
     );
@@ -48,10 +48,10 @@ export default function ResumeRecommendationsPage() {
   if (error) {
     return (
       <div className="max-w-md mx-auto">
-        <div className="card text-center py-16">
-          <div className="text-5xl mb-6">📄</div>
-          <h3 className="text-xl font-medium mb-2">No Resume Found</h3>
-          <p className="text-gray-400 mb-8">
+        <div className="card text-center py-16 border-2 border-slate-800">
+          <div className="text-5xl mb-6">▢</div>
+          <h3 className="text-xl font-medium text-slate-100 mb-2">No Resume Found</h3>
+          <p className="text-slate-400 mb-8">
             {error === "No resume found" 
               ? "Upload your resume first to get personalized AI recommendations." 
               : error}
@@ -75,8 +75,8 @@ export default function ResumeRecommendationsPage() {
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="section-title text-3xl">Resume Analysis</h1>
-          <p className="text-gray-400 mt-1">{data.resume_filename}</p>
+          <h1 className="section-title">Resume Analysis</h1>
+          <p className="text-slate-400 mt-1">{data.resume_filename}</p>
         </div>
         <Link href="/dashboard/resume" className="btn-ghost flex items-center gap-2">
           ← Back to Resume
@@ -89,50 +89,50 @@ export default function ResumeRecommendationsPage() {
           <div className={`text-5xl font-bold ${scoreColor(rec.overall_score)}`}>
             {rec.overall_score}
           </div>
-          <p className="text-sm text-gray-400 mt-3 font-medium">Overall Score</p>
+          <p className="text-sm text-slate-400 mt-3 font-medium">Overall Score</p>
         </div>
 
         <div className="card card-hover text-center">
           <div className={`text-5xl font-bold ${scoreColor(rec.ats_score)}`}>
             {rec.ats_score}
           </div>
-          <p className="text-sm text-gray-400 mt-3 font-medium">ATS Compatibility</p>
+          <p className="text-sm text-slate-400 mt-3 font-medium">ATS Compatibility</p>
         </div>
 
         <div className="card card-hover text-center">
           <div className="text-5xl font-bold text-red-400">
             {rec.improvements?.filter((i: any) => i.priority === "high").length || 0}
           </div>
-          <p className="text-sm text-gray-400 mt-3 font-medium">High Priority Fixes</p>
+          <p className="text-sm text-slate-400 mt-3 font-medium">High Priority Fixes</p>
         </div>
 
         <div className="card card-hover text-center">
-          <div className="text-5xl font-bold text-purple-400">
+          <div className="text-5xl font-bold text-teal-400">
             {rec.keyword_suggestions?.length || 0}
           </div>
-          <p className="text-sm text-gray-400 mt-3 font-medium">Keywords to Add</p>
+          <p className="text-sm text-slate-400 mt-3 font-medium">Keywords to Add</p>
         </div>
       </div>
 
       {/* AI Summary */}
       <div className="card">
-        <h3 className="text-xl font-semibold mb-4">📋 AI Summary</h3>
-        <p className="text-gray-300 leading-relaxed">{rec.summary_feedback}</p>
+        <h3 className="text-xl font-semibold mb-4 text-slate-100">AI Summary</h3>
+        <p className="text-slate-300 leading-relaxed">{rec.summary_feedback}</p>
       </div>
 
       {/* Strengths */}
       {rec.strengths?.length > 0 && (
         <div className="card">
           <h3 className="text-xl font-semibold mb-5 text-emerald-400 flex items-center gap-2">
-            ✅ What You’re Doing Well
+            What You're Doing Well
           </h3>
           <div className="space-y-4">
             {rec.strengths.map((s: any, i: number) => (
-              <div key={i} className="flex gap-4 bg-gray-950 rounded-2xl p-5">
-                <span className="text-emerald-400 text-xl mt-0.5">✓</span>
+              <div key={i} className="flex gap-4 bg-slate-900/50 rounded-lg p-5 border border-slate-800">
+                <span className="text-emerald-400 text-xl mt-0.5 flex-shrink-0">✓</span>
                 <div>
-                  <p className="font-medium">{s.title}</p>
-                  <p className="text-sm text-gray-400 mt-1">{s.detail}</p>
+                  <p className="font-medium text-slate-100">{s.title}</p>
+                  <p className="text-sm text-slate-400 mt-1">{s.detail}</p>
                 </div>
               </div>
             ))}
@@ -143,7 +143,7 @@ export default function ResumeRecommendationsPage() {
       {/* Improvements */}
       {rec.improvements?.length > 0 && (
         <div className="card">
-          <h3 className="text-xl font-semibold mb-6">🔧 Recommended Improvements</h3>
+          <h3 className="text-xl font-semibold mb-6 text-slate-100">Recommended Improvements</h3>
           
           {["high", "medium", "low"].map((priority) => {
             const items = rec.improvements.filter((i: any) => i.priority === priority);
@@ -151,8 +151,9 @@ export default function ResumeRecommendationsPage() {
 
             return (
               <div key={priority} className="mb-8">
-                <div className={`uppercase text-xs font-semibold tracking-widest mb-4
-                  ${priority === "high" ? "text-red-400" : priority === "medium" ? "text-amber-400" : "text-blue-400"}`}>
+                <div className={`uppercase text-xs font-semibold tracking-widest mb-4 ${
+                  priority === "high" ? "text-red-400" : priority === "medium" ? "text-amber-400" : "text-teal-400"
+                }`}>
                   {priority} Priority
                 </div>
                 <div className="space-y-4">
@@ -163,12 +164,12 @@ export default function ResumeRecommendationsPage() {
                           {item.section}
                         </span>
                         <div className="flex-1">
-                          <p className="font-medium text-gray-200">{item.issue}</p>
-                          <p className="text-sm text-gray-400 mt-3">
-                            <span className="text-blue-400 font-medium">Suggested Fix:</span> {item.fix}
+                          <p className="font-medium text-slate-200">{item.issue}</p>
+                          <p className="text-sm text-slate-400 mt-3">
+                            <span className="text-teal-400 font-medium">Suggested Fix:</span> {item.fix}
                           </p>
                           {item.example && (
-                            <div className="mt-4 p-4 bg-gray-950 border border-gray-800 rounded-xl text-sm font-mono text-gray-300">
+                            <div className="mt-4 p-4 bg-slate-950 border border-slate-800 rounded-lg text-sm font-mono text-slate-300">
                               {item.example}
                             </div>
                           )}
@@ -187,10 +188,10 @@ export default function ResumeRecommendationsPage() {
         {/* Keywords to Add */}
         {rec.keyword_suggestions?.length > 0 && (
           <div className="card">
-            <h3 className="text-xl font-semibold mb-5">🔑 Keywords to Add</h3>
+            <h3 className="text-xl font-semibold mb-5 text-slate-100">Keywords to Add</h3>
             <div className="flex flex-wrap gap-2">
               {rec.keyword_suggestions.map((kw: string, i: number) => (
-                <span key={i} className="badge bg-purple-500/10 border border-purple-500/30 text-purple-400 px-4 py-2 text-sm">
+                <span key={i} className="badge bg-teal-500/10 border border-teal-500/30 text-teal-400 px-4 py-2 text-sm">
                   {kw}
                 </span>
               ))}
@@ -201,10 +202,10 @@ export default function ResumeRecommendationsPage() {
         {/* Action Verbs */}
         {rec.action_verbs_to_add?.length > 0 && (
           <div className="card">
-            <h3 className="text-xl font-semibold mb-5">💪 Powerful Action Verbs</h3>
+            <h3 className="text-xl font-semibold mb-5 text-slate-100">Powerful Action Verbs</h3>
             <div className="flex flex-wrap gap-2">
               {rec.action_verbs_to_add.map((verb: string, i: number) => (
-                <span key={i} className="badge bg-blue-500/10 border border-blue-500/30 text-blue-400 px-4 py-2 text-sm">
+                <span key={i} className="badge bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-4 py-2 text-sm">
                   {verb}
                 </span>
               ))}
@@ -216,12 +217,12 @@ export default function ResumeRecommendationsPage() {
       {/* ATS Tips */}
       {rec.ats_tips?.length > 0 && (
         <div className="card">
-          <h3 className="text-xl font-semibold mb-5">🤖 ATS Optimization Tips</h3>
+          <h3 className="text-xl font-semibold mb-5 text-slate-100">ATS Optimization Tips</h3>
           <div className="space-y-4">
             {rec.ats_tips.map((tip: string, i: number) => (
-              <div key={i} className="flex gap-4 bg-gray-950 rounded-2xl p-5">
-                <span className="text-yellow-400 mt-0.5">→</span>
-                <p className="text-gray-300">{tip}</p>
+              <div key={i} className="flex gap-4 bg-slate-900/50 rounded-lg p-5 border border-slate-800">
+                <span className="text-amber-400 mt-0.5 flex-shrink-0">→</span>
+                <p className="text-slate-300">{tip}</p>
               </div>
             ))}
           </div>
@@ -230,11 +231,11 @@ export default function ResumeRecommendationsPage() {
 
       {/* Missing Sections */}
       {rec.missing_sections?.length > 0 && (
-        <div className="card border border-yellow-500/20">
-          <h3 className="text-xl font-semibold mb-4 text-yellow-400">⚠️ Missing Important Sections</h3>
+        <div className="card border border-amber-500/20">
+          <h3 className="text-xl font-semibold mb-4 text-amber-400">Missing Important Sections</h3>
           <div className="flex flex-wrap gap-3">
             {rec.missing_sections.map((section: string, i: number) => (
-              <span key={i} className="badge bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-5 py-2">
+              <span key={i} className="badge bg-amber-500/10 border border-amber-500/30 text-amber-400 px-5 py-2">
                 {section}
               </span>
             ))}

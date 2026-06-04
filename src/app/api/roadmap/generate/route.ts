@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { generateAIJSON } from "@/lib/ai";
+import { groqGenerateJSON } from "@/lib/ai";
 import { v4 as uuid } from "uuid";
 
 export async function POST(req: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   const resume = db.prepare("SELECT * FROM resumes WHERE user_id = ? AND is_active = 1").get(session.userId) as any;
   const currentSkills = resume?.parsed_skills ? JSON.parse(resume.parsed_skills).map((s: any) => s.skill_name) : [];
 
-  const result = await generateAIJSON<any>(`
+  const result = await groqGenerateJSON<any>(`
 You are a senior career coach. Create a focused learning roadmap.
 
 Target role: ${target_role}

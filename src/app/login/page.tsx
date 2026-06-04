@@ -30,22 +30,22 @@ export default function LoginPage() {
     }
 
     router.push("/dashboard");
-    router.refresh(); // Ensure layout updates
+    router.refresh();
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         {/* Logo & Header */}
         <div className="text-center mb-10">
           <div className="flex justify-center mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-3xl font-bold text-white">
+            <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-3xl font-bold text-white">
               IP
             </div>
           </div>
-          <h1 className="text-3xl font-semibold text-white">Welcome back</h1>
-          <p className="text-gray-400 mt-2">
-            Sign in to access your AI interview platform
+          <h1 className="text-3xl font-semibold text-slate-100">Welcome back</h1>
+          <p className="text-slate-400 mt-2">
+            Sign in to your interview preparation platform
           </p>
         </div>
 
@@ -53,7 +53,7 @@ export default function LoginPage() {
         <div className="card p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-2xl text-sm">
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
@@ -90,25 +90,24 @@ export default function LoginPage() {
               {loading ? (
                 <span className="flex items-center justify-center gap-3">
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Signing you in...
+                  Signing in...
                 </span>
               ) : (
                 "Sign In"
               )}
             </button>
 
-            <p className="text-center text-sm text-gray-400">
+            <p className="text-center text-sm text-slate-400">
               Don't have an account?{" "}
-              <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium">
-                Sign up for free
+              <Link href="/register" className="text-teal-400 hover:text-teal-300 font-medium">
+                Create one
               </Link>
             </p>
           </form>
         </div>
 
-        {/* Footer Note */}
-        <p className="text-center text-xs text-gray-500 mt-8">
-          Secure login powered by InterviewPilot
+        <p className="text-center text-xs text-slate-500 mt-8">
+          By signing in, you agree to our Terms and Privacy Policy
         </p>
       </div>
     </div>

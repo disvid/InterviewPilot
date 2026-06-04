@@ -46,15 +46,15 @@ export default function RoadmapPage() {
     <div className="max-w-4xl mx-auto space-y-10">
       {/* Header */}
       <div>
-        <h1 className="section-title text-3xl">Career Roadmap</h1>
-        <p className="text-gray-400 mt-2">
+        <h1 className="section-title">Career Roadmap</h1>
+        <p className="text-slate-400 mt-2">
           Get a personalized learning path to achieve your target role
         </p>
       </div>
 
       {/* Generate New Roadmap */}
       <div className="card">
-        <h3 className="text-xl font-semibold mb-5">Generate New Roadmap</h3>
+        <h3 className="text-xl font-semibold mb-5 text-slate-100">Generate New Roadmap</h3>
         
         <div className="space-y-4">
           <div>
@@ -68,7 +68,7 @@ export default function RoadmapPage() {
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl">
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
@@ -84,7 +84,7 @@ export default function RoadmapPage() {
                 Generating AI Roadmap...
               </span>
             ) : (
-              "✨ Generate Personalized Roadmap"
+              "Generate Personalized Roadmap"
             )}
           </button>
         </div>
@@ -96,9 +96,9 @@ export default function RoadmapPage() {
           <div className="card">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
-                <h2 className="text-2xl font-semibold">{current.target_role}</h2>
-                <p className="text-gray-400 mt-2">
-                  Estimated Duration: <span className="text-white font-medium">{current.estimated_weeks} weeks</span>
+                <h2 className="text-2xl font-semibold text-slate-100">{current.target_role}</h2>
+                <p className="text-slate-400 mt-2">
+                  Estimated Duration: <span className="text-slate-100 font-medium">{current.estimated_weeks} weeks</span>
                 </p>
               </div>
 
@@ -109,7 +109,7 @@ export default function RoadmapPage() {
                 }`}>
                   {Math.round(current.readiness_score || 0)}%
                 </div>
-                <p className="text-xs text-gray-500 uppercase tracking-widest">Readiness Score</p>
+                <p className="text-xs text-slate-500 uppercase tracking-widest">Readiness Score</p>
               </div>
             </div>
 
@@ -130,37 +130,37 @@ export default function RoadmapPage() {
           {/* Weekly Plan */}
           {weeklyPlan.length > 0 && (
             <div>
-              <h3 className="text-xl font-semibold mb-6">📅 Weekly Learning Plan</h3>
+              <h3 className="text-xl font-semibold mb-6 text-slate-100">Weekly Learning Plan</h3>
               <div className="space-y-4">
                 {weeklyPlan.map((week: any, i: number) => (
-                  <div key={i} className="card p-0 overflow-hidden card-hover">
+                  <div key={i} className="card p-0 overflow-hidden card-hover border-2 border-slate-800/50">
                     <button
                       onClick={() => setExpanded(expanded === i ? null : i)}
-                      className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-900/50 transition-colors"
+                      className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-900/50 transition-colors"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 font-mono text-sm">
+                        <div className="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-400 font-mono text-sm border border-teal-500/20">
                           W{week.week}
                         </div>
                         <div>
-                          <p className="font-medium">{week.title}</p>
-                          <p className="text-xs text-gray-500">Week {week.week}</p>
+                          <p className="font-medium text-slate-100">{week.title}</p>
+                          <p className="text-xs text-slate-500">Week {week.week}</p>
                         </div>
                       </div>
-                      <span className="text-xl text-gray-400 transition-transform">
+                      <span className="text-xl text-slate-400 transition-transform">
                         {expanded === i ? "−" : "+"}
                       </span>
                     </button>
 
                     {expanded === i && (
-                      <div className="px-6 pb-6 pt-2 border-t border-gray-800">
+                      <div className="px-6 pb-6 pt-2 border-t border-slate-800">
                         {week.tasks?.length > 0 && (
                           <div className="mb-6">
-                            <h5 className="text-xs uppercase tracking-widest text-gray-500 mb-3">Key Tasks</h5>
+                            <h5 className="text-xs uppercase tracking-widest text-slate-500 mb-3">Key Tasks</h5>
                             <ul className="space-y-2">
                               {week.tasks.map((task: string, j: number) => (
-                                <li key={j} className="flex gap-3 text-sm text-gray-300">
-                                  <span className="text-blue-400 mt-1.5">•</span>
+                                <li key={j} className="flex gap-3 text-sm text-slate-300">
+                                  <span className="text-teal-400 mt-1.5 flex-shrink-0">•</span>
                                   {task}
                                 </li>
                               ))}
@@ -170,7 +170,7 @@ export default function RoadmapPage() {
 
                         {week.resources?.length > 0 && (
                           <div>
-                            <h5 className="text-xs uppercase tracking-widest text-gray-500 mb-3">Recommended Resources</h5>
+                            <h5 className="text-xs uppercase tracking-widest text-slate-500 mb-3">Recommended Resources</h5>
                             <div className="space-y-3">
                               {week.resources.map((resource: any, j: number) => (
                                 <a
@@ -178,18 +178,18 @@ export default function RoadmapPage() {
                                   href={resource.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="block bg-gray-950 hover:bg-gray-900 p-4 rounded-2xl transition-colors group"
+                                  className="block bg-slate-900/50 hover:bg-slate-900 p-4 rounded-lg transition-colors group border border-slate-800"
                                 >
                                   <div className="flex items-start gap-3">
                                     {resource.type && (
-                                      <span className="badge bg-blue-500/10 text-blue-400 text-xs mt-0.5">
+                                      <span className="badge bg-teal-500/10 text-teal-400 text-xs mt-0.5 border border-teal-500/20">
                                         {resource.type}
                                       </span>
                                     )}
                                     <div className="flex-1">
-                                      <p className="group-hover:text-blue-400 transition-colors">{resource.title}</p>
+                                      <p className="group-hover:text-teal-400 transition-colors text-slate-200">{resource.title}</p>
                                       {resource.description && (
-                                        <p className="text-xs text-gray-500 mt-1">{resource.description}</p>
+                                        <p className="text-xs text-slate-500 mt-1">{resource.description}</p>
                                       )}
                                     </div>
                                   </div>
@@ -209,10 +209,10 @@ export default function RoadmapPage() {
       )}
 
       {!current && (
-        <div className="card text-center py-20">
-          <div className="text-6xl mb-6 opacity-50">🗺️</div>
-          <h3 className="text-xl font-medium">No Roadmap Yet</h3>
-          <p className="text-gray-400 mt-2 max-w-xs mx-auto">
+        <div className="card text-center py-20 border-2 border-slate-800">
+          <div className="text-6xl mb-6 opacity-50">◈</div>
+          <h3 className="text-xl font-medium text-slate-100">No Roadmap Yet</h3>
+          <p className="text-slate-400 mt-2 max-w-xs mx-auto">
             Generate your first personalized career roadmap by entering a target role above.
           </p>
         </div>

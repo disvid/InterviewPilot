@@ -50,12 +50,12 @@ export default function ResumePage() {
       {/* Header */}
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="section-title text-3xl">My Resume</h1>
-          <p className="text-gray-400 mt-1">Upload and manage your resume</p>
+          <h1 className="section-title">My Resume</h1>
+          <p className="text-slate-400 mt-1">Upload and manage your resume</p>
         </div>
         {resume && (
           <Link href="/dashboard/resume/recommendations" className="btn-primary flex items-center gap-2">
-            🔍 AI Resume Analysis
+            Analysis
           </Link>
         )}
       </div>
@@ -71,8 +71,9 @@ export default function ResumePage() {
           if (droppedFile?.type === "application/pdf") setFile(droppedFile);
         }}
         onClick={() => document.getElementById("file-input")?.click()}
-        className={`card border-2 border-dashed p-16 text-center cursor-pointer transition-all duration-300 hover:border-blue-500/50
-          ${drag ? "border-blue-500 bg-blue-500/5 scale-[1.02]" : "border-gray-700"}`}
+        className={`card border-2 border-dashed p-16 text-center cursor-pointer transition-all duration-300 ${
+          drag ? "border-teal-500 bg-teal-500/5 scale-[1.02]" : "border-slate-700 hover:border-teal-500/50"
+        }`}
       >
         <input 
           id="file-input" 
@@ -82,15 +83,15 @@ export default function ResumePage() {
           onChange={(e) => setFile(e.target.files?.[0] || null)} 
         />
 
-        <div className="mx-auto w-20 h-20 rounded-2xl bg-gray-900 flex items-center justify-center text-5xl mb-6">
-          {uploading ? "⏳" : "📄"}
+        <div className="mx-auto w-20 h-20 rounded-lg bg-slate-900/50 flex items-center justify-center text-4xl mb-6 border border-slate-800">
+          {uploading ? "⟳" : "▢"}
         </div>
 
-        <div className="text-xl font-medium">
+        <div className="text-xl font-medium text-slate-100">
           {file ? file.name : "Drag & drop your resume PDF"}
         </div>
         
-        <p className="text-gray-400 mt-2 text-sm">
+        <p className="text-slate-400 mt-2 text-sm">
           {file 
             ? "Ready to upload • Click the button below" 
             : "or click to browse • PDF only • Max 5MB"}
@@ -98,7 +99,7 @@ export default function ResumePage() {
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-4 rounded-2xl">
+        <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-4 rounded-lg">
           {error}
         </div>
       )}
@@ -121,23 +122,23 @@ export default function ResumePage() {
       {/* Parsed Resume Content */}
       {resume && (
         <div className="space-y-8">
-          <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl px-5 py-4">
-            <div className="text-2xl">✅</div>
+          <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-5 py-4">
+            <div className="text-2xl">✓</div>
             <div>
-              <p className="font-medium">Resume Successfully Parsed</p>
-              <p className="text-sm text-gray-400">{resume.filename}</p>
+              <p className="font-medium text-emerald-400">Resume Successfully Parsed</p>
+              <p className="text-sm text-slate-400">{resume.filename}</p>
             </div>
           </div>
 
           {/* Summary */}
           {resume.summary && (
             <div className="card">
-              <h3 className="text-xl font-semibold mb-4">Professional Summary</h3>
-              <p className="text-gray-300 leading-relaxed">{resume.summary}</p>
+              <h3 className="text-xl font-semibold mb-4 text-slate-100">Professional Summary</h3>
+              <p className="text-slate-300 leading-relaxed">{resume.summary}</p>
               <div className="mt-4 flex gap-6 text-sm">
                 <div>
-                  <span className="text-gray-500">Experience:</span>{" "}
-                  <span className="font-medium text-white">{resume.experience_years || "N/A"} years</span>
+                  <span className="text-slate-500">Experience:</span>{" "}
+                  <span className="font-medium text-slate-100">{resume.experience_years || "N/A"} years</span>
                 </div>
               </div>
             </div>
@@ -146,16 +147,16 @@ export default function ResumePage() {
           {/* Skills */}
           {skills.length > 0 && (
             <div className="card">
-              <h3 className="text-xl font-semibold mb-5">Skills ({skills.length})</h3>
+              <h3 className="text-xl font-semibold mb-5 text-slate-100">Skills ({skills.length})</h3>
               <div className="flex flex-wrap gap-3">
                 {skills.map((s: any, i: number) => (
                   <span 
                     key={i} 
-                    className="px-5 py-2.5 bg-gray-900 border border-gray-700 rounded-2xl text-sm hover:border-blue-500/50 transition-colors"
+                    className="px-5 py-2.5 bg-slate-900/50 border border-slate-700 rounded-lg text-sm hover:border-teal-500/50 transition-colors text-slate-200"
                   >
                     {s.skill_name}
                     {s.proficiency_level && (
-                      <span className="text-blue-400 ml-1.5">• {s.proficiency_level}</span>
+                      <span className="text-teal-400 ml-1.5">• {s.proficiency_level}</span>
                     )}
                   </span>
                 ))}
@@ -166,19 +167,19 @@ export default function ResumePage() {
           {/* Experience */}
           {experience.length > 0 && (
             <div className="card">
-              <h3 className="text-xl font-semibold mb-6">Experience</h3>
+              <h3 className="text-xl font-semibold mb-6 text-slate-100">Experience</h3>
               <div className="space-y-8">
                 {experience.map((e: any, i: number) => (
-                  <div key={i} className="border-l-2 border-blue-500/30 pl-6">
+                  <div key={i} className="border-l-2 border-teal-500/30 pl-6">
                     <div className="flex justify-between">
-                      <div className="font-semibold">{e.role}</div>
-                      <div className="text-xs text-gray-500 text-right">
+                      <div className="font-semibold text-slate-100">{e.role}</div>
+                      <div className="text-xs text-slate-500 text-right">
                         {e.start_date} — {e.end_date || "Present"}
                       </div>
                     </div>
-                    <div className="text-blue-400 text-sm mt-0.5">{e.company}</div>
+                    <div className="text-teal-400 text-sm mt-0.5">{e.company}</div>
                     {e.description && (
-                      <p className="text-sm text-gray-400 mt-3 leading-relaxed">
+                      <p className="text-sm text-slate-400 mt-3 leading-relaxed">
                         {e.description}
                       </p>
                     )}
@@ -191,13 +192,13 @@ export default function ResumePage() {
           {/* Projects */}
           {projects.length > 0 && (
             <div className="card">
-              <h3 className="text-xl font-semibold mb-6">Projects</h3>
+              <h3 className="text-xl font-semibold mb-6 text-slate-100">Projects</h3>
               <div className="space-y-6">
                 {projects.map((p: any, i: number) => (
-                  <div key={i} className="bg-gray-950 rounded-2xl p-6">
-                    <div className="font-medium text-lg">{p.name}</div>
+                  <div key={i} className="bg-slate-900/50 rounded-lg p-6 border border-slate-800">
+                    <div className="font-medium text-lg text-slate-100">{p.name}</div>
                     {p.description && (
-                      <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                      <p className="text-slate-400 text-sm mt-2 leading-relaxed">
                         {p.description}
                       </p>
                     )}
@@ -206,7 +207,7 @@ export default function ResumePage() {
                         {p.technologies.slice(0, 8).map((tech: string) => (
                           <span 
                             key={tech} 
-                            className="text-xs px-3 py-1 bg-gray-900 rounded-full text-gray-400 border border-gray-700"
+                            className="text-xs px-3 py-1 bg-slate-900 rounded-full text-slate-300 border border-slate-700"
                           >
                             {tech}
                           </span>

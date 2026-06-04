@@ -23,10 +23,10 @@ export function LogoutButton() {
     <button
       onClick={handleLogout}
       disabled={loading}
-      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-2xl transition-all group"
+      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all group font-medium"
     >
-      <span className="text-xl group-hover:scale-110 transition-transform">→</span>
-      <span className="font-medium">
+      <span className="text-sm group-hover:translate-x-0.5 transition-transform">→</span>
+      <span>
         {loading ? "Signing out..." : "Sign out"}
       </span>
     </button>
