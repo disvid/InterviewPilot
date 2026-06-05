@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
     const truncatedText = text.slice(0, 500);
     const audioBuffer = await groqTextToSpeech(truncatedText);
 
-    // ✅ Fixed: Convert Buffer to Uint8Array for NextResponse
     const audioArray = new Uint8Array(audioBuffer);
 
     return new NextResponse(audioArray, {

@@ -1,6 +1,3 @@
-// Analyze confidence from transcription text
-// No extra packages needed — pure text analysis
-
 export interface ConfidenceAnalysis {
   score: number; // 0-100
   pace_wpm: number;
@@ -82,7 +79,7 @@ export function analyzeConfidence(
       : wordCount;
 
   // Score calculation (0-100)
-  let score = 70; // baseline
+  let score = 70; 
 
   // Pace scoring (ideal: 120-160 wpm)
   if (pace_wpm >= 120 && pace_wpm <= 160) score += 10;

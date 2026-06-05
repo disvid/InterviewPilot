@@ -41,7 +41,6 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Page Header */}
       <div className="flex justify-between items-end">
         <div>
           <h1 className="section-title">Analytics Dashboard</h1>
@@ -54,7 +53,6 @@ export default async function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           { 
@@ -93,12 +91,10 @@ export default async function AnalyticsPage() {
         ))}
       </div>
 
-      {/* Charts */}
       <div className="card">
         <AnalyticsCharts scoreTrend={scoreTrend} byType={byType} />
       </div>
 
-      {/* Recent Activity */}
       {completedSessions.length > 0 && (
         <div className="card">
           <h2 className="text-xl font-semibold mb-5 text-slate-100">Recent Interviews</h2>

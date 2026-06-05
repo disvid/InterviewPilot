@@ -57,7 +57,6 @@ export default function SessionPage() {
   const streamRef = useRef<MediaStream | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Fetch Questions
   useEffect(() => {
     fetch(`/api/interview/${id}/questions`)
       .then((r) => r.json())
@@ -71,7 +70,6 @@ export default function SessionPage() {
   const currentQ = questions[current];
   const currentResult = currentQ ? results[currentQ.id] : null;
 
-  // Auto-speak current question
   useEffect(() => {
     if (!currentQ || !ttsEnabled) return;
     setAnswer("");
@@ -79,7 +77,6 @@ export default function SessionPage() {
     speakQuestion(currentQ.question_text);
   }, [current, currentQ?.id, ttsEnabled]);
 
-  // Recording Timer
   useEffect(() => {
     if (recState === "recording") {
       timerRef.current = setInterval(() => setRecSeconds((s) => s + 1), 1000);
@@ -90,7 +87,6 @@ export default function SessionPage() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [recState]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       streamRef.current?.getTracks().forEach((t) => t.stop());

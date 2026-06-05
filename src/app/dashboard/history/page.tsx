@@ -14,7 +14,6 @@ export default async function HistoryPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex justify-between items-end">
         <div>
           <h1 className="section-title">Interview History</h1>
@@ -54,12 +53,10 @@ export default async function HistoryPage() {
               className="card card-hover flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-2 border-slate-800/50 hover:border-slate-700"
             >
               <div className="flex items-center gap-5">
-                {/* Icon */}
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-xl flex-shrink-0 border border-slate-700">
                   {s.interview_type?.includes("technical") || s.job_role?.toLowerCase().includes("engineer") ? "▧" : "◆"}
                 </div>
 
-                {/* Details */}
                 <div>
                   <div className="font-semibold text-lg capitalize text-slate-100">
                     {s.interview_type?.replace("_", " ") || "Mock"} Interview
@@ -81,7 +78,6 @@ export default async function HistoryPage() {
                 </div>
               </div>
 
-              {/* Right Side */}
               <div className="flex items-center gap-5">
                 {s.overall_score != null && (
                   <div className="text-center">
@@ -106,7 +102,6 @@ export default async function HistoryPage() {
                   </span>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex items-center gap-2">
                   {s.status === "completed" && (
                     <Link 

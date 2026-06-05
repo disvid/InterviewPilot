@@ -34,7 +34,6 @@ export async function POST(req: NextRequest) {
 
   db.prepare("UPDATE questions SET is_answered = 1 WHERE id = ?").run(question_id);
 
-  // AI Evaluation
   const evaluation = await groqGenerateJSON<any>(`
 You are an expert interview evaluator. Score this answer.
 
@@ -73,7 +72,6 @@ Return ONLY valid JSON:
     evaluation.ai_feedback || ""
   );
 
-  // === Generate Confidence Analysis ===
   const wordCount = answer_text.split(/\s+/).length;
   const pace_wpm = Math.floor(wordCount / (duration_seconds / 60)) || 120;
   const fillerWords = ["um", "uh", "like", "you know", "basically"].filter(w => 
@@ -94,7 +92,6 @@ Return ONLY valid JSON:
     ].filter(t => t.positive !== undefined)
   };
 
-  // Check if interview is complete
   const unansweredCount = (db.prepare("SELECT COUNT(*) as c FROM questions WHERE session_id = ? AND is_answered = 0").get(session_id) as any).c;
 
   if (unansweredCount === 0) {

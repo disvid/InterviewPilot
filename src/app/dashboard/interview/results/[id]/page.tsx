@@ -57,7 +57,6 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
         </Link>
       </div>
 
-      {/* Overall Score Card */}
       <div className="card relative overflow-hidden border-2 border-slate-800">
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-500" />
         
@@ -76,7 +75,6 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
 
-        {/* Stats Bar */}
         <div className="grid grid-cols-3 border-t border-slate-800 pt-6 text-center">
           <div>
             <div className="text-2xl font-semibold text-slate-100">{questions.length}</div>
@@ -93,7 +91,6 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      {/* Question Breakdown */}
       <div>
         <h2 className="text-xl font-semibold mb-5 text-slate-100\">Question Breakdown</h2>
         <div className="space-y-6">
@@ -119,7 +116,6 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
 
               {q.overall_score !== null ? (
                 <>
-                  {/* Score Breakdown */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     {[
                       { label: "Relevance", value: q.relevance_score },
@@ -190,7 +186,6 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex flex-wrap gap-4 pt-4">
         <Link href="/dashboard/interview/setup" className="btn-primary\">
           Practice Similar Interview

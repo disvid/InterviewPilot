@@ -3,10 +3,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 const MODELS = [
-  "gemini-3.5-flash",           // Best current balance (recommended)
-  "gemini-2.5-flash",           // Good alternative
-  "gemini-3.1-flash-lite",      // Lightweight
-  "gemini-3-flash",             // Fallback
+  "gemini-3.5-flash",           
+  "gemini-2.5-flash",           
+  "gemini-3.1-flash-lite",      
+  "gemini-3-flash",             
 ];
 
 export async function geminiGenerate(prompt: string, jsonMode = false): Promise<string> {
@@ -42,7 +42,6 @@ export async function geminiGenerate(prompt: string, jsonMode = false): Promise<
         console.log("Quota exceeded, trying next model...");
         continue;
       }
-      // For 404 or other permanent errors, try next model
     }
   }
 
@@ -54,10 +53,9 @@ export async function geminiGenerateJSON<T>(prompt: string): Promise<T> {
   
   let cleaned = text
     .replace(/```json|```/g, "")
-    .replace(/^\s*[\r\n]+/gm, "")  // Remove empty lines
+    .replace(/^\s*[\r\n]+/gm, "")  
     .trim();
 
-  // Extra safety: extract JSON if wrapped in text
   const jsonStart = cleaned.indexOf("{");
   const jsonEnd = cleaned.lastIndexOf("}");
   if (jsonStart !== -1 && jsonEnd !== -1) {
